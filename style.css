@@ -1,0 +1,345 @@
+/* Custom Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes bounceSoft {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-15px) rotate(5deg);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+    }
+}
+
+@keyframes rotateSlow {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Glass Morphism Components */
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 35px 60px rgba(0, 0, 0, 0.15);
+}
+
+.glass-btn {
+    @apply w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all duration-300 flex items-center justify-center hover:scale-110 transform;
+}
+
+/* Modern Stat Cards */
+.stat-card-modern {
+    @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 transition-all duration-300 hover:bg-white/10 hover:scale-105 transform;
+}
+
+.stat-card-mini {
+    @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 text-center transition-all duration-300 hover:bg-white/10 hover:scale-105 transform;
+}
+
+/* Progress Bar */
+.progress-bar {
+    @apply w-full h-2 bg-white/10 rounded-full overflow-hidden;
+}
+
+.progress-fill {
+    @apply h-full rounded-full transition-all duration-1000 ease-out;
+}
+
+/* Quick City Buttons */
+.quick-city-btn {
+    @apply px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 rounded-xl hover:bg-white/20 hover:text-white transition-all duration-300 text-sm font-medium hover:scale-105 transform;
+}
+
+/* Hourly Forecast Items */
+.hourly-item {
+    @apply flex-shrink-0 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 text-center min-w-[100px] transition-all duration-300 hover:bg-white/10 hover:scale-105 transform;
+}
+
+/* Daily Forecast Items */
+.daily-item {
+    @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 transition-all duration-300 hover:bg-white/10 hover:scale-102 transform hover:shadow-lg;
+}
+
+/* Share Buttons */
+.share-btn {
+    @apply flex flex-col items-center justify-center space-y-2 p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 transform;
+}
+
+/* Chart Container */
+.chart-container {
+    @apply relative h-64 w-full;
+}
+
+/* Custom Scrollbar */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Dark Mode Styles */
+.dark {
+    --tw-gradient-from: #0f172a;
+    --tw-gradient-to: #000000;
+}
+
+.dark .glass-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass-card:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.dark .glass-btn {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass-btn:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.dark .stat-card-modern,
+.dark .stat-card-mini,
+.dark .hourly-item,
+.dark .daily-item,
+.dark .quick-city-btn,
+.dark .share-btn {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .stat-card-modern:hover,
+.dark .stat-card-mini:hover,
+.dark .hourly-item:hover,
+.dark .daily-item:hover,
+.dark .quick-city-btn:hover,
+.dark .share-btn:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* Toast Notifications */
+.toast {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 text-white shadow-lg transform translate-x-full transition-all duration-300;
+}
+
+.toast.show {
+    @apply translate-x-0;
+}
+
+.toast.success {
+    @apply border-green-400/30 bg-green-500/10;
+}
+
+.toast.error {
+    @apply border-red-400/30 bg-red-500/10;
+}
+
+.toast.info {
+    @apply border-blue-400/30 bg-blue-500/10;
+}
+
+/* Weather Icon Animations */
+.weather-sunny {
+    animation: float 3s ease-in-out infinite;
+    color: #fbbf24;
+    filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));
+}
+
+.weather-cloudy {
+    animation: float 4s ease-in-out infinite;
+    color: #9ca3af;
+}
+
+.weather-rainy {
+    animation: bounceSoft 2s infinite;
+    color: #60a5fa;
+    filter: drop-shadow(0 0 10px rgba(96, 165, 250, 0.5));
+}
+
+.weather-snowy {
+    animation: float 5s ease-in-out infinite;
+    color: #e5e7eb;
+}
+
+/* Loading States */
+.loading-shimmer {
+    background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .glass-card {
+        margin: 0 0.5rem;
+    }
+    
+    #temperature {
+        font-size: 4rem;
+    }
+    
+    .stat-card-modern,
+    .stat-card-mini {
+        padding: 0.75rem;
+    }
+    
+    .hourly-item {
+        min-width: 80px;
+        padding: 0.75rem;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+}
+
+@media (max-width: 640px) {
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    #temperature {
+        font-size: 3.5rem;
+    }
+    
+    .glass-card {
+        padding: 1rem;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus States */
+button:focus,
+input:focus {
+    outline: 2px solid rgba(168, 85, 247, 0.5);
+    outline-offset: 2px;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .glass-card {
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid white;
+    }
+    
+    .text-white\/70,
+    .text-white\/60,
+    .text-white\/80 {
+        color: white !important;
+    }
+}
