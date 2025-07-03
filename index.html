@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App</title>
+  <style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #74ebd5, #acb6e5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+
+  h1 {
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+
+  .weather-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+  }
+
+  input[type="text"] {
+    padding: 12px;
+    width: 80%;
+    max-width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+
+  button {
+    padding: 12px 20px;
+    background-color: #00796b;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #004d40;
+  }
+
+  #result {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #333;
+    line-height: 1.6;
+    text-align: left;
+  }
+
+  @media (max-width: 500px) {
+    h1 {
+      font-size: 28px;
+    }
+    .weather-container {
+      padding: 20px;
+    }
+    input[type="text"] {
+      width: 100%;
+    }
+  }
+</style>
+
+</head>
+<body>
+  <h1>Weather App</h1>
+  <input id="inputvalue" type="text" placeholder="Enter a city" />
+  <button onclick="get_weather()">Get Weather</button>
+  <div id="result"></div>
+
+  <script>
+    function get_weather() {
+      const city = document.getElementById("inputvalue").value;
+      const result = document.getElementById("result");
+      const apiKey = "67d6c2aad687c51529580e71e4871fe0";
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+      fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.cod === 200) {
+            result.innerHTML = `
+              <strong>City:</strong> ${data.name}<br/>
+              <strong>Temperature:</strong> ${data.main.temp}°C<br/>
+              <strong>Humidity:</strong> ${data.main.humidity}%<br/>
+              <strong>Pressure:</strong> ${data.main.pressure} hPa<br/>
+              <strong>Feels Like:</strong> ${data.main.feels_like}°C<br/>
+              <strong>Ground Level:</strong> ${data.main.grnd_level || 'N/A'}
+            `;
+          } else {
+            result.innerHTML = `<span style="color:red;">City not found!</span>`;
+          }
+        })
+        .catch(() => {
+          result.innerHTML = `<span style="color:red;">Error fetching data!</span>`;
+        });
+    }
+  </script>
+</body>
+</html>
