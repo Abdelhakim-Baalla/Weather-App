@@ -1,375 +1,502 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WeatherVibe - Météo Moderne</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'poppins': ['Poppins', 'sans-serif'],
-                    },
-                    colors: {
-                        'primary': {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                        },
-                        'accent': {
-                            50: '#fdf4ff',
-                            100: '#fae8ff',
-                            200: '#f5d0fe',
-                            300: '#f0abfc',
-                            400: '#e879f9',
-                            500: '#d946ef',
-                            600: '#c026d3',
-                            700: '#a21caf',
-                            800: '#86198f',
-                            900: '#701a75',
-                        },
-                        'dark': {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                        }
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.8s ease-out',
-                        'slide-up': 'slideUp 0.6s ease-out',
-                        'slide-down': 'slideDown 0.6s ease-out',
-                        'scale-in': 'scaleIn 0.5s ease-out',
-                        'bounce-soft': 'bounceSoft 2s ease-in-out infinite',
-                        'float': 'float 4s ease-in-out infinite',
-                        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
-                        'rotate-slow': 'rotateSlow 20s linear infinite',
-                    }
-                }
-            }
-        }
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              poppins: ["Poppins", "sans-serif"],
+            },
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+              accent: {
+                50: "#fdf4ff",
+                100: "#fae8ff",
+                200: "#f5d0fe",
+                300: "#f0abfc",
+                400: "#e879f9",
+                500: "#d946ef",
+                600: "#c026d3",
+                700: "#a21caf",
+                800: "#86198f",
+                900: "#701a75",
+              },
+              dark: {
+                50: "#f8fafc",
+                100: "#f1f5f9",
+                200: "#e2e8f0",
+                300: "#cbd5e1",
+                400: "#94a3b8",
+                500: "#64748b",
+                600: "#475569",
+                700: "#334155",
+                800: "#1e293b",
+                900: "#0f172a",
+              },
+            },
+            animation: {
+              "fade-in": "fadeIn 0.8s ease-out",
+              "slide-up": "slideUp 0.6s ease-out",
+              "slide-down": "slideDown 0.6s ease-out",
+              "scale-in": "scaleIn 0.5s ease-out",
+              "bounce-soft": "bounceSoft 2s ease-in-out infinite",
+              float: "float 4s ease-in-out infinite",
+              "pulse-glow": "pulseGlow 3s ease-in-out infinite",
+              "rotate-slow": "rotateSlow 20s linear infinite",
+            },
+          },
+        },
+      };
     </script>
-</head>
-<body class="font-poppins transition-all duration-500 ease-in-out">
+  </head>
+  <body class="font-poppins transition-all duration-500 ease-in-out">
     <!-- Background Gradient -->
-    <div class="fixed inset-0 bg-gradient-to-br from-primary-400 via-accent-400 to-primary-600 dark:from-dark-800 dark:via-dark-900 dark:to-black transition-all duration-1000"></div>
-    
+    <div
+      class="fixed inset-0 bg-gradient-to-br from-primary-400 via-accent-400 to-primary-600 dark:from-dark-800 dark:via-dark-900 dark:to-black transition-all duration-1000"
+    ></div>
+
     <!-- Animated Background Elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-float"></div>
-        <div class="absolute top-1/2 -left-40 w-96 h-96 bg-accent-300/20 rounded-full blur-3xl animate-bounce-soft"></div>
-        <div class="absolute bottom-20 right-1/4 w-64 h-64 bg-primary-300/20 rounded-full blur-3xl animate-pulse-glow"></div>
+      <div
+        class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-float"
+      ></div>
+      <div
+        class="absolute top-1/2 -left-40 w-96 h-96 bg-accent-300/20 rounded-full blur-3xl animate-bounce-soft"
+      ></div>
+      <div
+        class="absolute bottom-20 right-1/4 w-64 h-64 bg-primary-300/20 rounded-full blur-3xl animate-pulse-glow"
+      ></div>
     </div>
 
     <div class="relative z-10 min-h-screen">
-        <!-- Header -->
-        <header class="backdrop-blur-md bg-white/10 dark:bg-black/20 border-b border-white/20 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-20">
-                    <div class="flex items-center space-x-4">
-                        <div class="relative">
-                            <div class="w-12 h-12 bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center shadow-lg animate-pulse-glow">
-                                <i class="fas fa-cloud-sun text-white text-xl"></i>
-                            </div>
-                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-ping"></div>
-                        </div>
-                        <div>
-                            <h1 class="text-2xl font-bold text-white">WeatherVibe</h1>
-                            <p class="text-sm text-white/70">Météo en temps réel</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <button id="shareBtn" class="glass-btn">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
-                        <button id="themeToggle" class="glass-btn">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                        <button id="settingsBtn" class="glass-btn">
-                            <i class="fas fa-cog animate-rotate-slow"></i>
-                        </button>
-                    </div>
+      <!-- Header -->
+      <header
+        class="backdrop-blur-md bg-white/10 dark:bg-black/20 border-b border-white/20 sticky top-0 z-50"
+      >
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-20">
+            <div class="flex items-center space-x-4">
+              <div class="relative">
+                <div
+                  class="w-12 h-12 bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center shadow-lg animate-pulse-glow"
+                >
+                  <i class="fas fa-cloud-sun text-white text-xl"></i>
                 </div>
+                <div
+                  class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-ping"
+                ></div>
+              </div>
+              <div>
+                <h1 class="text-2xl font-bold text-white">WeatherVibe</h1>
+                <p class="text-sm text-white/70">Météo en temps réel</p>
+              </div>
             </div>
-        </header>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Search Section -->
-            <div class="mb-12 animate-fade-in">
-                <div class="max-w-2xl mx-auto">
-                    <div class="glass-card p-6 rounded-3xl">
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-white/60 text-lg"></i>
-                            </div>
-                            <input 
-                                type="text" 
-                                id="cityInput" 
-                                placeholder="Rechercher une ville..." 
-                                class="w-full pl-16 pr-24 py-5 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent backdrop-blur-sm text-lg transition-all duration-300"
-                                autocomplete="off"
-                            >
-                            <div class="absolute inset-y-0 right-0 flex items-center space-x-2 pr-4">
-                                <button id="locationBtn" class="p-3 text-white/60 hover:text-accent-400 transition-colors duration-300 hover:scale-110 transform">
-                                    <i class="fas fa-location-arrow text-lg"></i>
-                                </button>
-                                <button id="searchBtn" class="px-6 py-3 bg-gradient-to-r from-accent-500 to-primary-500 text-white rounded-xl hover:from-accent-600 hover:to-primary-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Quick Cities -->
-                        <div class="flex flex-wrap gap-2 mt-4">
-                            <button class="quick-city-btn" data-city="Paris">Paris</button>
-                            <button class="quick-city-btn" data-city="London">Londres</button>
-                            <button class="quick-city-btn" data-city="New York">New York</button>
-                            <button class="quick-city-btn" data-city="Tokyo">Tokyo</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex items-center space-x-3">
+              <button id="shareBtn" class="glass-btn">
+                <i class="fas fa-share-alt"></i>
+              </button>
+              <button id="themeToggle" class="glass-btn">
+                <i class="fas fa-moon"></i>
+              </button>
+              <button id="settingsBtn" class="glass-btn">
+                <i class="fas fa-cog animate-rotate-slow"></i>
+              </button>
             </div>
-
-            <!-- Loading -->
-            <div id="loading" class="hidden text-center py-20">
-                <div class="relative inline-block">
-                    <div class="w-20 h-20 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fas fa-cloud text-white text-2xl animate-bounce-soft"></i>
-                    </div>
-                </div>
-                <p class="text-white text-xl mt-6 animate-pulse">Chargement des données météo...</p>
-            </div>
-
-            <!-- Error Message -->
-            <div id="errorMessage" class="hidden animate-scale-in">
-                <div class="max-w-md mx-auto glass-card p-8 rounded-3xl text-center border border-red-400/30">
-                    <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-2">Oops!</h3>
-                    <p class="text-white/80 mb-6" id="errorText">Une erreur s'est produite</p>
-                    <button id="retryBtn" class="px-8 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-2xl hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105">
-                        Réessayer
-                    </button>
-                </div>
-            </div>
-
-            <!-- Weather Display -->
-            <div id="weatherDisplay" class="hidden space-y-8">
-                <!-- Main Weather Card -->
-                <div class="glass-card p-8 rounded-3xl animate-slide-up">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <!-- Current Weather -->
-                        <div class="lg:col-span-2">
-                            <div class="flex items-start justify-between mb-6">
-                                <div>
-                                    <div class="flex items-center mb-2">
-                                        <i class="fas fa-map-marker-alt text-accent-400 mr-3 text-lg"></i>
-                                        <div>
-                                            <h2 id="cityName" class="text-3xl font-bold text-white">Paris</h2>
-                                            <p id="country" class="text-white/70 text-lg">France</p>
-                                        </div>
-                                    </div>
-                                    <p id="currentTime" class="text-white/60 text-sm"></p>
-                                </div>
-                                <div class="text-right">
-                                    <div id="weatherIcon" class="text-6xl mb-2 animate-float">
-                                        <i class="fas fa-sun text-yellow-400"></i>
-                                    </div>
-                                    <p id="description" class="text-white/80 capitalize text-lg">Ensoleillé</p>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-end space-x-6 mb-6">
-                                <div class="text-7xl font-bold text-white" id="temperature">22°</div>
-                                <div class="pb-4">
-                                    <p id="feelsLike" class="text-white/80 text-lg">Ressenti 25°C</p>
-                                    <p id="tempRange" class="text-white/60">Min 18° • Max 26°</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Weather Stats -->
-                        <div class="space-y-4">
-                            <div class="stat-card-modern">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                                            <i class="fas fa-tint text-blue-400"></i>
-                                        </div>
-                                        <span class="text-white/80">Humidité</span>
-                                    </div>
-                                    <span class="text-2xl font-bold text-white" id="humidity">65%</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div id="humidityBar" class="progress-fill bg-gradient-to-r from-blue-400 to-blue-600" style="width: 65%"></div>
-                                </div>
-                            </div>
-
-                            <div class="stat-card-modern">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
-                                            <i class="fas fa-wind text-green-400"></i>
-                                        </div>
-                                        <div>
-                                            <span class="text-white/80 block">Vent</span>
-                                            <span class="text-white/60 text-sm" id="windDirection">Nord-Est</span>
-                                        </div>
-                                    </div>
-                                    <span class="text-2xl font-bold text-white" id="windSpeed">15 km/h</span>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="stat-card-mini">
-                                    <i class="fas fa-eye text-purple-400 text-xl mb-2"></i>
-                                    <div class="text-lg font-bold text-white" id="visibility">10 km</div>
-                                    <div class="text-white/60 text-sm">Visibilité</div>
-                                </div>
-                                <div class="stat-card-mini">
-                                    <i class="fas fa-thermometer-half text-red-400 text-xl mb-2"></i>
-                                    <div class="text-lg font-bold text-white" id="pressure">1013</div>
-                                    <div class="text-white/60 text-sm">hPa</div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="stat-card-mini">
-                                    <i class="fas fa-sunrise text-orange-400 text-xl mb-2"></i>
-                                    <div class="text-lg font-bold text-white" id="sunrise">06:45</div>
-                                    <div class="text-white/60 text-sm">Lever</div>
-                                </div>
-                                <div class="stat-card-mini">
-                                    <i class="fas fa-sunset text-orange-600 text-xl mb-2"></i>
-                                    <div class="text-lg font-bold text-white" id="sunset">19:30</div>
-                                    <div class="text-white/60 text-sm">Coucher</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Section -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="glass-card p-6 rounded-3xl animate-slide-up" style="animation-delay: 0.2s">
-                        <h3 class="text-xl font-semibold text-white mb-6 flex items-center">
-                            <div class="w-8 h-8 bg-primary-500/20 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-chart-line text-primary-400"></i>
-                            </div>
-                            Température 24h
-                        </h3>
-                        <div class="chart-container">
-                            <canvas id="temperatureChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="glass-card p-6 rounded-3xl animate-slide-up" style="animation-delay: 0.4s">
-                        <h3 class="text-xl font-semibold text-white mb-6 flex items-center">
-                            <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-cloud-rain text-blue-400"></i>
-                            </div>
-                            Précipitations 24h
-                        </h3>
-                        <div class="chart-container">
-                            <canvas id="precipitationChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hourly Forecast -->
-                <div class="glass-card p-6 rounded-3xl animate-slide-up" style="animation-delay: 0.6s">
-                    <h3 class="text-xl font-semibold text-white mb-6 flex items-center">
-                        <div class="w-8 h-8 bg-accent-500/20 rounded-lg flex items-center justify-center mr-3">
-                            <i class="fas fa-clock text-accent-400"></i>
-                        </div>
-                        Prévisions Horaires
-                    </h3>
-                    <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide" id="hourlyForecast">
-                        <!-- Hourly items will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <!-- Weekly Forecast -->
-                <div class="glass-card p-6 rounded-3xl animate-slide-up" style="animation-delay: 0.8s">
-                    <h3 class="text-xl font-semibold text-white mb-6 flex items-center">
-                        <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
-                            <i class="fas fa-calendar-alt text-green-400"></i>
-                        </div>
-                        Prévisions 7 Jours
-                    </h3>
-                    <div class="space-y-3" id="weeklyForecast">
-                        <!-- Weekly items will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+      </header>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search Section -->
+        <div class="mb-12 animate-fade-in">
+          <div class="max-w-2xl mx-auto">
+            <div class="glass-card p-6 rounded-3xl">
+              <div class="relative">
+                <div
+                  class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-search text-white/60 text-lg"></i>
+                </div>
+                <input
+                  type="text"
+                  id="cityInput"
+                  placeholder="Rechercher une ville..."
+                  class="w-full pl-16 pr-24 py-5 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent backdrop-blur-sm text-lg transition-all duration-300"
+                  autocomplete="off"
+                />
+                <div
+                  class="absolute inset-y-0 right-0 flex items-center space-x-2 pr-4"
+                >
+                  <button
+                    id="locationBtn"
+                    class="p-3 text-white/60 hover:text-accent-400 transition-colors duration-300 hover:scale-110 transform"
+                  >
+                    <i class="fas fa-location-arrow text-lg"></i>
+                  </button>
+                  <button
+                    id="searchBtn"
+                    class="px-6 py-3 bg-gradient-to-r from-accent-500 to-primary-500 text-white rounded-xl hover:from-accent-600 hover:to-primary-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Quick Cities -->
+              <div class="flex flex-wrap gap-2 mt-4">
+                <button class="quick-city-btn" data-city="Paris">Paris</button>
+                <button class="quick-city-btn" data-city="London">
+                  Londres
+                </button>
+                <button class="quick-city-btn" data-city="New York">
+                  New York
+                </button>
+                <button class="quick-city-btn" data-city="Tokyo">Tokyo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-20">
+          <div class="relative inline-block">
+            <div
+              class="w-20 h-20 border-4 border-white/30 border-t-white rounded-full animate-spin"
+            ></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <i
+                class="fas fa-cloud text-white text-2xl animate-bounce-soft"
+              ></i>
+            </div>
+          </div>
+          <p class="text-white text-xl mt-6 animate-pulse">
+            Chargement des données météo...
+          </p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="hidden animate-scale-in">
+          <div
+            class="max-w-md mx-auto glass-card p-8 rounded-3xl text-center border border-red-400/30"
+          >
+            <div
+              class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Oops!</h3>
+            <p class="text-white/80 mb-6" id="errorText">
+              Une erreur s'est produite
+            </p>
+            <button
+              id="retryBtn"
+              class="px-8 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-2xl hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105"
+            >
+              Réessayer
+            </button>
+          </div>
+        </div>
+
+        <!-- Weather Display -->
+        <div id="weatherDisplay" class="hidden space-y-8">
+          <!-- Main Weather Card -->
+          <div class="glass-card p-8 rounded-3xl animate-slide-up">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <!-- Current Weather -->
+              <div class="lg:col-span-2">
+                <div class="flex items-start justify-between mb-6">
+                  <div>
+                    <div class="flex items-center mb-2">
+                      <i
+                        class="fas fa-map-marker-alt text-accent-400 mr-3 text-lg"
+                      ></i>
+                      <div>
+                        <h2 id="cityName" class="text-3xl font-bold text-white">
+                          Paris
+                        </h2>
+                        <p id="country" class="text-white/70 text-lg">France</p>
+                      </div>
+                    </div>
+                    <p id="currentTime" class="text-white/60 text-sm"></p>
+                  </div>
+                  <div class="text-right">
+                    <div id="weatherIcon" class="text-6xl mb-2 animate-float">
+                      <i class="fas fa-sun text-yellow-400"></i>
+                    </div>
+                    <p
+                      id="description"
+                      class="text-white/80 capitalize text-lg"
+                    >
+                      Ensoleillé
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-end space-x-6 mb-6">
+                  <div class="text-7xl font-bold text-white" id="temperature">
+                    22°
+                  </div>
+                  <div class="pb-4">
+                    <p id="feelsLike" class="text-white/80 text-lg">
+                      Ressenti 25°C
+                    </p>
+                    <p id="tempRange" class="text-white/60">
+                      Min 18° • Max 26°
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Weather Stats -->
+              <div class="space-y-4">
+                <div class="stat-card-modern">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                      <div
+                        class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center"
+                      >
+                        <i class="fas fa-tint text-blue-400"></i>
+                      </div>
+                      <span class="text-white/80">Humidité</span>
+                    </div>
+                    <span class="text-2xl font-bold text-white" id="humidity"
+                      >65%</span
+                    >
+                  </div>
+                  <div class="progress-bar">
+                    <div
+                      id="humidityBar"
+                      class="progress-fill bg-gradient-to-r from-blue-400 to-blue-600"
+                      style="width: 65%"
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="stat-card-modern">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                      <div
+                        class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center"
+                      >
+                        <i class="fas fa-wind text-green-400"></i>
+                      </div>
+                      <div>
+                        <span class="text-white/80 block">Vent</span>
+                        <span class="text-white/60 text-sm" id="windDirection"
+                          >Nord-Est</span
+                        >
+                      </div>
+                    </div>
+                    <span class="text-2xl font-bold text-white" id="windSpeed"
+                      >15 km/h</span
+                    >
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="stat-card-mini">
+                    <i class="fas fa-eye text-purple-400 text-xl mb-2"></i>
+                    <div class="text-lg font-bold text-white" id="visibility">
+                      10 km
+                    </div>
+                    <div class="text-white/60 text-sm">Visibilité</div>
+                  </div>
+                  <div class="stat-card-mini">
+                    <i
+                      class="fas fa-thermometer-half text-red-400 text-xl mb-2"
+                    ></i>
+                    <div class="text-lg font-bold text-white" id="pressure">
+                      1013
+                    </div>
+                    <div class="text-white/60 text-sm">hPa</div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="stat-card-mini">
+                    <i class="fas fa-sunrise text-orange-400 text-xl mb-2"></i>
+                    <div class="text-lg font-bold text-white" id="sunrise">
+                      06:45
+                    </div>
+                    <div class="text-white/60 text-sm">Lever</div>
+                  </div>
+                  <div class="stat-card-mini">
+                    <i class="fas fa-sunset text-orange-600 text-xl mb-2"></i>
+                    <div class="text-lg font-bold text-white" id="sunset">
+                      19:30
+                    </div>
+                    <div class="text-white/60 text-sm">Coucher</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Section -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div
+              class="glass-card p-6 rounded-3xl animate-slide-up"
+              style="animation-delay: 0.2s"
+            >
+              <h3
+                class="text-xl font-semibold text-white mb-6 flex items-center"
+              >
+                <div
+                  class="w-8 h-8 bg-primary-500/20 rounded-lg flex items-center justify-center mr-3"
+                >
+                  <i class="fas fa-chart-line text-primary-400"></i>
+                </div>
+                Température 24h
+              </h3>
+              <div class="chart-container">
+                <canvas id="temperatureChart"></canvas>
+              </div>
+            </div>
+
+            <div
+              class="glass-card p-6 rounded-3xl animate-slide-up"
+              style="animation-delay: 0.4s"
+            >
+              <h3
+                class="text-xl font-semibold text-white mb-6 flex items-center"
+              >
+                <div
+                  class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center mr-3"
+                >
+                  <i class="fas fa-cloud-rain text-blue-400"></i>
+                </div>
+                Précipitations 24h
+              </h3>
+              <div class="chart-container">
+                <canvas id="precipitationChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hourly Forecast -->
+          <div
+            class="glass-card p-6 rounded-3xl animate-slide-up"
+            style="animation-delay: 0.6s"
+          >
+            <h3 class="text-xl font-semibold text-white mb-6 flex items-center">
+              <div
+                class="w-8 h-8 bg-accent-500/20 rounded-lg flex items-center justify-center mr-3"
+              >
+                <i class="fas fa-clock text-accent-400"></i>
+              </div>
+              Prévisions Horaires
+            </h3>
+            <div
+              class="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide"
+              id="hourlyForecast"
+            >
+              <!-- Hourly items will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Weekly Forecast -->
+          <div
+            class="glass-card p-6 rounded-3xl animate-slide-up"
+            style="animation-delay: 0.8s"
+          >
+            <h3 class="text-xl font-semibold text-white mb-6 flex items-center">
+              <div
+                class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center mr-3"
+              >
+                <i class="fas fa-calendar-alt text-green-400"></i>
+              </div>
+              Prévisions 7 Jours
+            </h3>
+            <div class="space-y-3" id="weeklyForecast">
+              <!-- Weekly items will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Share Modal -->
-    <div id="shareModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-card p-8 rounded-3xl max-w-md w-full animate-scale-in">
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-gradient-to-r from-accent-500 to-primary-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-share-alt text-white text-2xl"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-white mb-2">Partager la Météo</h3>
-                <p class="text-white/70">Partagez les conditions météo actuelles</p>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <button class="share-btn" data-platform="twitter">
-                    <i class="fab fa-twitter text-blue-400 text-xl"></i>
-                    <span>Twitter</span>
-                </button>
-                <button class="share-btn" data-platform="facebook">
-                    <i class="fab fa-facebook text-blue-600 text-xl"></i>
-                    <span>Facebook</span>
-                </button>
-                <button class="share-btn" data-platform="whatsapp">
-                    <i class="fab fa-whatsapp text-green-500 text-xl"></i>
-                    <span>WhatsApp</span>
-                </button>
-                <button class="share-btn" data-platform="copy">
-                    <i class="fas fa-copy text-gray-400 text-xl"></i>
-                    <span>Copier</span>
-                </button>
-            </div>
-            
-            <button id="closeShareModal" class="w-full py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors">
-                Fermer
-            </button>
+    <div
+      id="shareModal"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4"
+    >
+      <div class="glass-card p-8 rounded-3xl max-w-md w-full animate-scale-in">
+        <div class="text-center mb-6">
+          <div
+            class="w-16 h-16 bg-gradient-to-r from-accent-500 to-primary-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          >
+            <i class="fas fa-share-alt text-white text-2xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-2">Partager la Météo</h3>
+          <p class="text-white/70">Partagez les conditions météo actuelles</p>
         </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <button class="share-btn" data-platform="twitter">
+            <i class="fab fa-twitter text-blue-400 text-xl"></i>
+            <span>Twitter</span>
+          </button>
+          <button class="share-btn" data-platform="facebook">
+            <i class="fab fa-facebook text-blue-600 text-xl"></i>
+            <span>Facebook</span>
+          </button>
+          <button class="share-btn" data-platform="whatsapp">
+            <i class="fab fa-whatsapp text-green-500 text-xl"></i>
+            <span>WhatsApp</span>
+          </button>
+          <button class="share-btn" data-platform="copy">
+            <i class="fas fa-copy text-gray-400 text-xl"></i>
+            <span>Copier</span>
+          </button>
+        </div>
+
+        <button
+          id="closeShareModal"
+          class="w-full py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
+        >
+          Fermer
+        </button>
+      </div>
     </div>
 
     <!-- Floating Action Button -->
-    <button id="refreshBtn" class="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-accent-500 to-primary-500 text-white rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 z-40 animate-pulse-glow">
-        <i class="fas fa-sync-alt text-xl"></i>
+    <button
+      id="refreshBtn"
+      class="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-accent-500 to-primary-500 text-white rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 z-40 animate-pulse-glow"
+    >
+      <i class="fas fa-sync-alt text-xl"></i>
     </button>
 
     <!-- Toast Notifications -->
     <div id="toastContainer" class="fixed top-24 right-4 z-50 space-y-2"></div>
 
+    <script src="config.js"></script>
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
