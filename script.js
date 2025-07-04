@@ -1,12 +1,18 @@
-class WeatherVibeApp {
+class WeatherApp {
   constructor() {
-    this.apiKey = typeof API_KEY !== "undefined" ? API_KEY : "";
+    this.apiKey = typeof API_KEY !== "undefined" ? API_KEY : ""; // Utilise la clé API depuis config.js
     this.baseUrl = "https://api.openweathermap.org/data/2.5";
     this.geoUrl = "https://api.openweathermap.org/geo/1.0";
     this.currentWeatherData = null;
     this.isDarkMode = localStorage.getItem("darkMode") === "true";
+    this.favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
     this.temperatureChart = null;
     this.precipitationChart = null;
+    this.lastUpdate = null;
+    this.notifications = [];
+    this.isVoiceSupported =
+      "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
+
     this.init();
   }
 
@@ -16,16 +22,27 @@ class WeatherVibeApp {
     this.initializeCharts();
     this.loadDefaultWeather();
     this.updateCurrentTime();
-    setInterval(() => this.updateCurrentTime(), 60000); // Update every minute
+    this.setupScrollToTop();
+
+    // Update time every minute
+    setInterval(() => this.updateCurrentTime(), 60000);
+
+    // Auto-refresh weather data every 10 minutes
+    setInterval(() => this.autoRefreshWeather(), 10 * 60 * 1000);
   }
 
   setupTheme() {
+    const body = document.body;
+    const themeIcon = document.querySelector("#themeToggle i");
+
     if (this.isDarkMode) {
-      document.documentElement.classList.add("dark");
-      document.querySelector("#themeToggle i").className = "fas fa-sun";
+      body.classList.add("dark-theme");
+      body.classList.remove("light-theme");
+      themeIcon.className = "fas fa-sun";
     } else {
-      document.documentElement.classList.remove("dark");
-      document.querySelector("#themeToggle i").className = "fas fa-moon";
+      body.classList.add("light-theme");
+      body.classList.remove("dark-theme");
+      themeIcon.className = "fas fa-moon";
     }
   }
 
@@ -38,7 +55,7 @@ class WeatherVibeApp {
       if (e.key === "Enter") this.searchWeather();
     });
 
-    // Location and refresh
+    // Control buttons
     document
       .getElementById("locationBtn")
       .addEventListener("click", () => this.getCurrentLocation());
@@ -48,19 +65,32 @@ class WeatherVibeApp {
     document
       .getElementById("retryBtn")
       .addEventListener("click", () => this.loadDefaultWeather());
-
-    // Theme toggle
     document
-      .getElementById("themeToggle")
-      .addEventListener("click", () => this.toggleTheme());
-
-    // Share functionality
+      .getElementById("voiceBtn")
+      .addEventListener("click", () => this.startVoiceSearch());
+    document
+      .getElementById("favoriteBtn")
+      .addEventListener("click", () => this.toggleFavorite());
+    document
+      .getElementById("favoritesBtn")
+      .addEventListener("click", () => this.showFavorites());
+    document
+      .getElementById("notificationBtn")
+      .addEventListener("click", () => this.showNotifications());
     document
       .getElementById("shareBtn")
       .addEventListener("click", () => this.openShareModal());
     document
+      .getElementById("themeToggle")
+      .addEventListener("click", () => this.toggleTheme());
+
+    // Modal events
+    document
       .getElementById("closeShareModal")
       .addEventListener("click", () => this.closeShareModal());
+    document
+      .getElementById("closeAlertModal")
+      .addEventListener("click", () => this.closeAlertModal());
 
     // Share buttons
     document.querySelectorAll(".share-btn").forEach((btn) => {
@@ -70,21 +100,42 @@ class WeatherVibeApp {
     });
 
     // Quick city buttons
-    document.querySelectorAll(".quick-city-btn").forEach((btn) => {
+    document.querySelectorAll(".quick-city").forEach((btn) => {
       btn.addEventListener("click", (e) =>
         this.searchCity(e.target.dataset.city)
       );
     });
 
-    // Close modal on outside click
+    // Scroll to top
+    document.getElementById("scrollTopBtn").addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // Modal overlay clicks
     document.getElementById("shareModal").addEventListener("click", (e) => {
       if (e.target.id === "shareModal") this.closeShareModal();
+    });
+
+    document.getElementById("alertModal").addEventListener("click", (e) => {
+      if (e.target.id === "alertModal") this.closeAlertModal();
+    });
+  }
+
+  setupScrollToTop() {
+    const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 300) {
+        scrollTopBtn.classList.add("visible");
+      } else {
+        scrollTopBtn.classList.remove("visible");
+      }
     });
   }
 
   updateCurrentTime() {
     const now = new Date();
-    const timeString = now.toLocaleString("fr-FR", {
+    const timeString = now.toLocaleString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -126,7 +177,7 @@ class WeatherVibeApp {
     const city = cityInput.value.trim();
 
     if (!city) {
-      this.showToast("Veuillez entrer le nom d'une ville", "error");
+      this.showToast("Please enter a city name", "error");
       return;
     }
 
@@ -137,7 +188,6 @@ class WeatherVibeApp {
     this.showLoading();
 
     try {
-      // Géocodage pour obtenir les coordonnées
       const geoResponse = await fetch(
         `${this.geoUrl}/direct?q=${encodeURIComponent(
           cityName
@@ -145,20 +195,22 @@ class WeatherVibeApp {
       );
 
       if (!geoResponse.ok) {
-        throw new Error("Erreur de géocodage");
+        throw new Error("Geocoding error");
       }
 
       const geoData = await geoResponse.json();
 
       if (geoData.length === 0) {
-        throw new Error("Ville non trouvée");
+        throw new Error("City not found");
       }
 
       const { lat, lon } = geoData[0];
       await this.getWeatherByCoords(lat, lon);
     } catch (error) {
       console.error("Search error:", error);
-      this.showError("Ville non trouvée. Veuillez vérifier l'orthographe.");
+      this.showError(
+        "City not found. Please check the spelling and try again."
+      );
     }
 
     this.hideLoading();
@@ -166,29 +218,35 @@ class WeatherVibeApp {
 
   async getCurrentLocation() {
     if (!navigator.geolocation) {
-      this.showToast("La géolocalisation n'est pas supportée", "error");
+      this.showToast("Geolocation is not supported", "error");
       return;
     }
 
     this.showLoading();
+    const locationBtn = document.getElementById("locationBtn");
+    const originalIcon = locationBtn.querySelector("i").className;
+    locationBtn.querySelector("i").className = "fas fa-spinner fa-spin";
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
         await this.getWeatherByCoords(latitude, longitude);
+        locationBtn.querySelector("i").className = originalIcon;
       },
       (error) => {
         this.hideLoading();
-        let errorMessage = "Impossible d'obtenir votre position";
+        locationBtn.querySelector("i").className = originalIcon;
+
+        let errorMessage = "Unable to get your location";
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = "Accès à la géolocalisation refusé";
+            errorMessage = "Location access denied";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = "Position non disponible";
+            errorMessage = "Location unavailable";
             break;
           case error.TIMEOUT:
-            errorMessage = "Délai d'attente dépassé";
+            errorMessage = "Location request timeout";
             break;
         }
         this.showToast(errorMessage, "error");
@@ -199,7 +257,8 @@ class WeatherVibeApp {
 
   async refreshWeather() {
     const refreshBtn = document.getElementById("refreshBtn");
-    refreshBtn.style.animation = "rotateSlow 1s linear";
+    const originalIcon = refreshBtn.querySelector("i").className;
+    refreshBtn.querySelector("i").className = "fas fa-spinner fa-spin";
 
     if (this.currentWeatherData) {
       const { coord } = this.currentWeatherData;
@@ -209,17 +268,26 @@ class WeatherVibeApp {
     }
 
     setTimeout(() => {
-      refreshBtn.style.animation = "";
+      refreshBtn.querySelector("i").className = originalIcon;
     }, 1000);
   }
 
-  async getWeatherByCoords(lat, lon) {
-    this.showLoading();
+  async autoRefreshWeather() {
+    if (this.currentWeatherData) {
+      const { coord } = this.currentWeatherData;
+      await this.getWeatherByCoords(coord.lat, coord.lon, true);
+    }
+  }
+
+  async getWeatherByCoords(lat, lon, isAutoRefresh = false) {
+    if (!isAutoRefresh) {
+      this.showLoading();
+    }
 
     try {
-      // Données météo actuelles
+      // Current weather
       const currentResponse = await fetch(
-        `${this.baseUrl}/weather?lat=${lat}&lon=${lon}&appid=${this.apiKey}&units=metric&lang=fr`
+        `${this.baseUrl}/weather?lat=${lat}&lon=${lon}&appid=${this.apiKey}&units=metric`
       );
 
       if (!currentResponse.ok) {
@@ -228,9 +296,9 @@ class WeatherVibeApp {
 
       const currentData = await currentResponse.json();
 
-      // Prévisions 5 jours
+      // 5-day forecast
       const forecastResponse = await fetch(
-        `${this.baseUrl}/forecast?lat=${lat}&lon=${lon}&appid=${this.apiKey}&units=metric&lang=fr`
+        `${this.baseUrl}/forecast?lat=${lat}&lon=${lon}&appid=${this.apiKey}&units=metric`
       );
 
       if (!forecastResponse.ok) {
@@ -239,49 +307,56 @@ class WeatherVibeApp {
 
       const forecastData = await forecastResponse.json();
 
-      // Stocker les données actuelles
       this.currentWeatherData = currentData;
+      this.lastUpdate = new Date();
 
-      // Afficher toutes les données
       this.displayCurrentWeather(currentData);
       this.displayHourlyForecast(forecastData.list.slice(0, 12));
       this.displayWeeklyForecast(this.processWeeklyForecast(forecastData.list));
-      this.updateCharts(forecastData.list.slice(0, 8)); // 24 heures de données
+      this.updateCharts(forecastData.list.slice(0, 8));
+      this.generateWeatherInsights(currentData, forecastData);
 
       this.showWeatherDisplay();
-      this.showToast("Données météo mises à jour", "success");
+
+      if (!isAutoRefresh) {
+        this.showToast("Weather data updated successfully", "success");
+      }
     } catch (error) {
       console.error("Weather fetch error:", error);
-      this.showError(
-        "Impossible d'obtenir les données météo. Veuillez réessayer."
-      );
+      if (!isAutoRefresh) {
+        this.showError("Unable to fetch weather data. Please try again.");
+      }
     }
 
-    this.hideLoading();
+    if (!isAutoRefresh) {
+      this.hideLoading();
+    }
   }
 
   displayCurrentWeather(data) {
     const sunrise = new Date(data.sys.sunrise * 1000);
     const sunset = new Date(data.sys.sunset * 1000);
 
-    // Informations principales
+    // Main information
     document.getElementById("cityName").textContent = data.name;
-    document.getElementById("country").textContent = data.sys.country;
-    document.getElementById("temperature").textContent = `${Math.round(
+    document.getElementById("countryName").textContent = data.sys.country;
+    document.getElementById("mainTemperature").textContent = `${Math.round(
       data.main.temp
     )}°`;
-    document.getElementById("description").textContent =
+    document.getElementById("weatherDescription").textContent =
       data.weather[0].description;
-    document.getElementById("feelsLike").textContent = `Ressenti ${Math.round(
+    document.getElementById("feelsLike").textContent = `Feels like ${Math.round(
       data.main.feels_like
     )}°C`;
-    document.getElementById("tempRange").textContent = `Min ${Math.round(
-      data.main.temp_min
-    )}° • Max ${Math.round(data.main.temp_max)}°`;
+    document.getElementById("tempRange").textContent = `H: ${Math.round(
+      data.main.temp_max
+    )}° L: ${Math.round(data.main.temp_min)}°`;
 
-    // Statistiques détaillées
+    // Weather stats
     document.getElementById("humidity").textContent = `${data.main.humidity}%`;
-    document.getElementById("pressure").textContent = data.main.pressure;
+    document.getElementById(
+      "pressure"
+    ).textContent = `${data.main.pressure} hPa`;
     document.getElementById("visibility").textContent = `${(
       data.visibility / 1000
     ).toFixed(1)} km`;
@@ -290,25 +365,41 @@ class WeatherVibeApp {
     )} km/h`;
     document.getElementById("windDirection").textContent =
       this.getWindDirection(data.wind.deg || 0);
+    document.getElementById("uvIndex").textContent = "5"; // Default value as UV index is not in basic API
+    document.getElementById("precipitation").textContent = "20%"; // Default value
+
+    // Sun times
     document.getElementById("sunrise").textContent = sunrise.toLocaleTimeString(
-      "fr-FR",
-      { hour: "2-digit", minute: "2-digit" }
+      "en-US",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
     );
     document.getElementById("sunset").textContent = sunset.toLocaleTimeString(
-      "fr-FR",
-      { hour: "2-digit", minute: "2-digit" }
+      "en-US",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
     );
 
-    // Mettre à jour l'icône météo avec animation
+    // Update weather icon
     const weatherIcon = document.getElementById("weatherIcon");
-    const iconInfo = this.getWeatherIconInfo(data.weather[0].main);
+    const iconInfo = this.getWeatherIconInfo(
+      data.weather[0].main,
+      data.weather[0].icon
+    );
     weatherIcon.innerHTML = `<i class="${iconInfo.class} ${iconInfo.color}"></i>`;
 
-    // Mettre à jour la barre d'humidité avec animation
+    // Update humidity bar
     const humidityBar = document.getElementById("humidityBar");
     setTimeout(() => {
       humidityBar.style.width = `${data.main.humidity}%`;
     }, 500);
+
+    // Update favorite button state
+    this.updateFavoriteButton(data.name, data.sys.country);
   }
 
   displayHourlyForecast(hourlyData) {
@@ -319,23 +410,24 @@ class WeatherVibeApp {
       const time = new Date(hour.dt * 1000);
       const hourItem = document.createElement("div");
       hourItem.className = "hourly-item";
-      hourItem.style.animationDelay = `${index * 0.1}s`;
 
-      const iconInfo = this.getWeatherIconInfo(hour.weather[0].main);
+      const iconInfo = this.getWeatherIconInfo(
+        hour.weather[0].main,
+        hour.weather[0].icon
+      );
 
       hourItem.innerHTML = `
-                <div class="text-sm text-white/70 mb-3">${time
-                  .getHours()
-                  .toString()
-                  .padStart(2, "0")}:00</div>
-                <div class="text-3xl ${iconInfo.color} mb-3">
+                <div class="hourly-time">
+                    ${time.getHours().toString().padStart(2, "0")}:00
+                </div>
+                <div class="hourly-icon ${iconInfo.color}">
                     <i class="${iconInfo.class}"></i>
                 </div>
-                <div class="text-lg font-bold text-white mb-2">${Math.round(
-                  hour.main.temp
-                )}°</div>
-                <div class="text-xs text-white/60 bg-white/10 px-2 py-1 rounded-full">
-                    ${Math.round((hour.pop || 0) * 100)}%
+                <div class="hourly-temp">
+                    ${Math.round(hour.main.temp)}°
+                </div>
+                <div class="hourly-desc">
+                    ${hour.weather[0].description}
                 </div>
             `;
 
@@ -356,6 +448,8 @@ class WeatherVibeApp {
           temps: [],
           weather: item.weather[0],
           precipitation: item.pop || 0,
+          wind: item.wind.speed,
+          humidity: item.main.humidity,
         };
       }
 
@@ -374,6 +468,8 @@ class WeatherVibeApp {
         temp_min: Math.round(Math.min(...day.temps)),
         weather: day.weather,
         precipitation: Math.round(day.precipitation * 100),
+        wind: Math.round(day.wind * 3.6),
+        humidity: Math.round(day.humidity),
       }));
   }
 
@@ -382,54 +478,41 @@ class WeatherVibeApp {
     container.innerHTML = "";
 
     const days = [
-      "Dimanche",
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-      "Samedi",
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
     ];
 
     weeklyData.forEach((day, index) => {
       const dayItem = document.createElement("div");
-      dayItem.className = "daily-item";
-      dayItem.style.animationDelay = `${index * 0.1}s`;
+      dayItem.className = "weekly-item";
 
-      const dayName = index === 0 ? "Aujourd'hui" : days[day.date.getDay()];
-      const iconInfo = this.getWeatherIconInfo(day.weather.main);
+      const dayName = index === 0 ? "Today" : days[day.date.getDay()];
+      const iconInfo = this.getWeatherIconInfo(
+        day.weather.main,
+        day.weather.icon
+      );
 
       dayItem.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <div class="text-center min-w-[80px]">
-                            <div class="text-sm font-semibold text-white">${dayName}</div>
-                            <div class="text-xs text-white/60">${day.date.getDate()}/${
+                <div class="weekly-day">
+                    <div class="weekly-day-name">${dayName}</div>
+                    <div class="weekly-day-date">${day.date.getDate()}/${
         day.date.getMonth() + 1
       }</div>
-                        </div>
-                        <div class="text-3xl ${iconInfo.color}">
-                            <i class="${iconInfo.class}"></i>
-                        </div>
-                        <div class="text-sm text-white/80 capitalize flex-1">${
-                          day.weather.description
-                        }</div>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <div class="text-xs text-blue-400 bg-blue-500/20 px-3 py-1 rounded-full">
-                            <i class="fas fa-cloud-rain mr-1"></i>${
-                              day.precipitation
-                            }%
-                        </div>
-                        <div class="text-right min-w-[60px]">
-                            <div class="text-xl font-bold text-white">${
-                              day.temp_max
-                            }°</div>
-                            <div class="text-sm text-white/60">${
-                              day.temp_min
-                            }°</div>
-                        </div>
-                    </div>
+                </div>
+                <div class="weekly-icon ${iconInfo.color}">
+                    <i class="${iconInfo.class}"></i>
+                </div>
+                <div class="weekly-desc">
+                    ${day.weather.description}
+                </div>
+                <div class="weekly-temps">
+                    <span class="weekly-high">${day.temp_max}°</span>
+                    <span class="weekly-low">${day.temp_min}°</span>
                 </div>
             `;
 
@@ -438,29 +521,39 @@ class WeatherVibeApp {
   }
 
   initializeCharts() {
-    // Configuration commune pour les graphiques
     const commonOptions = {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
+        tooltip: {
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          titleColor: "white",
+          bodyColor: "white",
+          borderColor: "rgba(255, 255, 255, 0.2)",
+          borderWidth: 1,
+          cornerRadius: 10,
+          padding: 12,
+        },
       },
       scales: {
         y: {
-          grid: { color: "rgba(255, 255, 255, 0.1)" },
-          ticks: { color: "rgba(255, 255, 255, 0.8)" },
+          grid: { color: "rgba(148, 163, 184, 0.2)" },
+          ticks: { color: "rgba(148, 163, 184, 0.8)", font: { size: 12 } },
+          border: { display: false },
         },
         x: {
-          grid: { color: "rgba(255, 255, 255, 0.1)" },
-          ticks: { color: "rgba(255, 255, 255, 0.8)" },
+          grid: { color: "rgba(148, 163, 184, 0.2)" },
+          ticks: { color: "rgba(148, 163, 184, 0.8)", font: { size: 12 } },
+          border: { display: false },
         },
       },
       elements: {
-        point: { radius: 4, hoverRadius: 6 },
+        point: { radius: 6, hoverRadius: 8 },
       },
     };
 
-    // Graphique de température
+    // Temperature chart
     const tempCtx = document
       .getElementById("temperatureChart")
       .getContext("2d");
@@ -470,13 +563,16 @@ class WeatherVibeApp {
         labels: [],
         datasets: [
           {
-            label: "Température (°C)",
+            label: "Temperature (°C)",
             data: [],
-            borderColor: "#38bdf8",
-            backgroundColor: "rgba(56, 189, 248, 0.1)",
+            borderColor: "#3b82f6",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
             fill: true,
             tension: 0.4,
             borderWidth: 3,
+            pointBackgroundColor: "#3b82f6",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
           },
         ],
       },
@@ -492,7 +588,7 @@ class WeatherVibeApp {
       },
     });
 
-    // Graphique de précipitations
+    // Precipitation chart
     const precipCtx = document
       .getElementById("precipitationChart")
       .getContext("2d");
@@ -502,12 +598,12 @@ class WeatherVibeApp {
         labels: [],
         datasets: [
           {
-            label: "Précipitations (%)",
+            label: "Precipitation (%)",
             data: [],
-            backgroundColor: "rgba(59, 130, 246, 0.8)",
-            borderColor: "#3b82f6",
+            backgroundColor: "rgba(139, 92, 246, 0.8)",
+            borderColor: "#8b5cf6",
             borderWidth: 1,
-            borderRadius: 6,
+            borderRadius: 8,
             borderSkipped: false,
           },
         ],
@@ -539,30 +635,138 @@ class WeatherVibeApp {
       Math.round((item.pop || 0) * 100)
     );
 
-    // Mise à jour du graphique de température
+    // Update temperature chart
     this.temperatureChart.data.labels = labels;
     this.temperatureChart.data.datasets[0].data = temperatures;
-    this.temperatureChart.update("none"); // Animation désactivée pour éviter les boucles
+    this.temperatureChart.update("none");
 
-    // Mise à jour du graphique de précipitations
+    // Update precipitation chart
     this.precipitationChart.data.labels = labels;
     this.precipitationChart.data.datasets[0].data = precipitation;
-    this.precipitationChart.update("none"); // Animation désactivée pour éviter les boucles
+    this.precipitationChart.update("none");
   }
 
-  getWeatherIconInfo(weatherMain) {
+  generateWeatherInsights(currentData, forecastData) {
+    const insights = [];
+    const temp = currentData.main.temp;
+    const humidity = currentData.main.humidity;
+    const windSpeed = currentData.wind.speed * 3.6;
+    const weather = currentData.weather[0].main;
+
+    // Temperature insights
+    if (temp > 25) {
+      insights.push({
+        icon: "fas fa-sun",
+        color: "#f59e0b",
+        title: "Perfect for outdoor activities",
+        description:
+          "Great weather for swimming, hiking, or enjoying outdoor dining",
+      });
+    } else if (temp < 5) {
+      insights.push({
+        icon: "fas fa-snowflake",
+        color: "#3b82f6",
+        title: "Bundle up!",
+        description: "Cold weather ahead. Dress warmly and stay cozy indoors",
+      });
+    } else {
+      insights.push({
+        icon: "fas fa-leaf",
+        color: "#22c55e",
+        title: "Pleasant weather",
+        description:
+          "Perfect temperature for a comfortable walk or outdoor activities",
+      });
+    }
+
+    // Humidity insights
+    if (humidity > 80) {
+      insights.push({
+        icon: "fas fa-tint",
+        color: "#3b82f6",
+        title: "High humidity",
+        description: "The air might feel heavy and muggy. Stay hydrated!",
+      });
+    }
+
+    // Wind insights
+    if (windSpeed > 20) {
+      insights.push({
+        icon: "fas fa-wind",
+        color: "#6b7280",
+        title: "Windy conditions",
+        description:
+          "Strong winds expected. Secure loose objects and be cautious outdoors",
+      });
+    }
+
+    // Weather-specific insights
+    if (weather === "Rain") {
+      insights.push({
+        icon: "fas fa-umbrella",
+        color: "#3b82f6",
+        title: "Rain expected",
+        description:
+          "Don't forget your umbrella! Perfect weather for cozy indoor activities",
+      });
+    }
+
+    // Display insights
+    const container = document.getElementById("weatherInsights");
+    container.innerHTML = "";
+
+    insights.forEach((insight) => {
+      const insightDiv = document.createElement("div");
+      insightDiv.className = "insight-item";
+      insightDiv.innerHTML = `
+                <div class="insight-icon" style="background-color: ${insight.color}">
+                    <i class="${insight.icon}"></i>
+                </div>
+                <div class="insight-content">
+                    <h4>${insight.title}</h4>
+                    <p>${insight.description}</p>
+                </div>
+            `;
+      container.appendChild(insightDiv);
+    });
+  }
+
+  getWeatherIconInfo(weatherMain, iconCode) {
+    const isDay = iconCode && iconCode.includes("d");
+
     const iconMap = {
-      Clear: { class: "fas fa-sun", color: "text-yellow-400 weather-sunny" },
-      Clouds: { class: "fas fa-cloud", color: "text-gray-300 weather-cloudy" },
+      Clear: {
+        class: isDay ? "fas fa-sun" : "fas fa-moon",
+        color: isDay ? "weather-sunny" : "weather-cloudy",
+      },
+      Clouds: {
+        class: "fas fa-cloud",
+        color: "weather-cloudy",
+      },
       Rain: {
         class: "fas fa-cloud-rain",
-        color: "text-blue-400 weather-rainy",
+        color: "weather-rainy",
       },
-      Snow: { class: "fas fa-snowflake", color: "text-white weather-snowy" },
-      Thunderstorm: { class: "fas fa-bolt", color: "text-purple-400" },
-      Drizzle: { class: "fas fa-cloud-drizzle", color: "text-blue-300" },
-      Mist: { class: "fas fa-smog", color: "text-gray-400" },
-      Fog: { class: "fas fa-smog", color: "text-gray-400" },
+      Snow: {
+        class: "fas fa-snowflake",
+        color: "weather-snowy",
+      },
+      Thunderstorm: {
+        class: "fas fa-bolt",
+        color: "weather-stormy",
+      },
+      Drizzle: {
+        class: "fas fa-cloud-drizzle",
+        color: "weather-rainy",
+      },
+      Mist: {
+        class: "fas fa-smog",
+        color: "weather-foggy",
+      },
+      Fog: {
+        class: "fas fa-smog",
+        color: "weather-foggy",
+      },
     };
 
     return iconMap[weatherMain] || iconMap["Clear"];
@@ -579,50 +783,164 @@ class WeatherVibeApp {
       "SE",
       "SSE",
       "S",
-      "SSO",
-      "SO",
-      "OSO",
-      "O",
-      "ONO",
-      "NO",
-      "NNO",
+      "SSW",
+      "SW",
+      "WSW",
+      "W",
+      "WNW",
+      "NW",
+      "NNW",
     ];
     const index = Math.round(degrees / 22.5) % 16;
     return directions[index];
   }
 
+  startVoiceSearch() {
+    if (!this.isVoiceSupported) {
+      this.showToast("Voice search not supported", "error");
+      return;
+    }
+
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    const voiceBtn = document.getElementById("voiceBtn");
+    const originalIcon = voiceBtn.querySelector("i").className;
+
+    voiceBtn.querySelector("i").className = "fas fa-microphone-alt";
+    voiceBtn.style.color = "#ef4444";
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      document.getElementById("cityInput").value = transcript;
+      this.searchCity(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      this.showToast("Voice recognition error", "error");
+    };
+
+    recognition.onend = () => {
+      voiceBtn.querySelector("i").className = originalIcon;
+      voiceBtn.style.color = "";
+    };
+
+    recognition.start();
+    this.showToast("Speak now...", "info");
+  }
+
   toggleTheme() {
     this.isDarkMode = !this.isDarkMode;
+    const body = document.body;
     const themeIcon = document.querySelector("#themeToggle i");
 
     if (this.isDarkMode) {
-      document.documentElement.classList.add("dark");
+      body.classList.add("dark-theme");
+      body.classList.remove("light-theme");
       themeIcon.className = "fas fa-sun";
     } else {
-      document.documentElement.classList.remove("dark");
+      body.classList.add("light-theme");
+      body.classList.remove("dark-theme");
       themeIcon.className = "fas fa-moon";
     }
 
     localStorage.setItem("darkMode", this.isDarkMode);
     this.showToast(
-      `Mode ${this.isDarkMode ? "sombre" : "clair"} activé`,
+      `${this.isDarkMode ? "Dark" : "Light"} mode activated`,
       "info"
     );
   }
 
+  toggleFavorite() {
+    if (!this.currentWeatherData) return;
+
+    const cityName = this.currentWeatherData.name;
+    const country = this.currentWeatherData.sys.country;
+    const favoriteKey = `${cityName}, ${country}`;
+
+    const existingIndex = this.favorites.findIndex(
+      (fav) => fav.key === favoriteKey
+    );
+
+    if (existingIndex > -1) {
+      this.favorites.splice(existingIndex, 1);
+      this.showToast("Removed from favorites", "info");
+    } else {
+      this.favorites.push({
+        key: favoriteKey,
+        name: cityName,
+        country: country,
+        coords: this.currentWeatherData.coord,
+        addedAt: new Date().toISOString(),
+      });
+      this.showToast("Added to favorites", "success");
+    }
+
+    localStorage.setItem("favorites", JSON.stringify(this.favorites));
+    this.updateFavoriteButton(cityName, country);
+  }
+
+  updateFavoriteButton(cityName, country) {
+    const favoriteBtn = document.getElementById("favoriteBtn");
+    const favoriteKey = `${cityName}, ${country}`;
+    const isFavorite = this.favorites.some((fav) => fav.key === favoriteKey);
+
+    const icon = favoriteBtn.querySelector("i");
+    if (isFavorite) {
+      icon.className = "fas fa-heart";
+      favoriteBtn.classList.add("active");
+    } else {
+      icon.className = "far fa-heart";
+      favoriteBtn.classList.remove("active");
+    }
+  }
+
+  showFavorites() {
+    if (this.favorites.length === 0) {
+      this.showToast("No favorites saved", "info");
+      return;
+    }
+
+    const favoritesText = this.favorites.map((fav) => fav.name).join(", ");
+    this.showToast(`Favorites: ${favoritesText}`, "info");
+  }
+
+  showNotifications() {
+    if (this.notifications.length === 0) {
+      this.showToast("No notifications", "info");
+      return;
+    }
+
+    this.showToast(`${this.notifications.length} notification(s)`, "info");
+  }
+
   openShareModal() {
-    document.getElementById("shareModal").classList.remove("hidden");
+    const modal = document.getElementById("shareModal");
+    modal.classList.add("active");
     document.body.style.overflow = "hidden";
   }
 
   closeShareModal() {
-    document.getElementById("shareModal").classList.add("hidden");
+    const modal = document.getElementById("shareModal");
+    modal.classList.remove("active");
+    document.body.style.overflow = "auto";
+  }
+
+  closeAlertModal() {
+    const modal = document.getElementById("alertModal");
+    modal.classList.remove("active");
     document.body.style.overflow = "auto";
   }
 
   async handleShare(platform) {
     if (!this.currentWeatherData) {
-      this.showToast("Aucune donnée météo à partager", "error");
+      this.showToast("No weather data to share", "error");
       return;
     }
 
@@ -630,7 +948,15 @@ class WeatherVibeApp {
     const temp = Math.round(main.temp);
     const description = weather[0].description;
 
-    const shareText = `🌤️ Météo à ${name}: ${temp}°C, ${description}. Découvrez plus sur WeatherVibe!`;
+    const shareText = `🌤️ Weather in ${name}: ${temp}°C, ${description}. 
+        
+📊 Details:
+• Feels like: ${Math.round(main.feels_like)}°C
+• Humidity: ${main.humidity}%
+• Wind: ${Math.round(this.currentWeatherData.wind.speed * 3.6)} km/h
+
+Check out WeatherVibe Pro! 🚀`;
+
     const shareUrl = window.location.href;
 
     switch (platform) {
@@ -661,9 +987,9 @@ class WeatherVibeApp {
       case "copy":
         try {
           await navigator.clipboard.writeText(shareText + " " + shareUrl);
-          this.showToast("Lien copié dans le presse-papiers", "success");
+          this.showToast("Link copied to clipboard", "success");
         } catch (error) {
-          this.showToast("Impossible de copier le lien", "error");
+          this.showToast("Unable to copy link", "error");
         }
         break;
     }
@@ -672,24 +998,24 @@ class WeatherVibeApp {
   }
 
   showLoading() {
-    document.getElementById("loading").classList.remove("hidden");
-    document.getElementById("weatherDisplay").classList.add("hidden");
-    document.getElementById("errorMessage").classList.add("hidden");
+    document.getElementById("loadingSection").style.display = "block";
+    document.getElementById("weatherSection").style.display = "none";
+    document.getElementById("errorSection").style.display = "none";
   }
 
   hideLoading() {
-    document.getElementById("loading").classList.add("hidden");
+    document.getElementById("loadingSection").style.display = "none";
   }
 
   showWeatherDisplay() {
-    document.getElementById("weatherDisplay").classList.remove("hidden");
-    document.getElementById("errorMessage").classList.add("hidden");
+    document.getElementById("weatherSection").style.display = "block";
+    document.getElementById("errorSection").style.display = "none";
   }
 
   showError(message) {
-    document.getElementById("errorText").textContent = message;
-    document.getElementById("errorMessage").classList.remove("hidden");
-    document.getElementById("weatherDisplay").classList.add("hidden");
+    document.getElementById("errorMessage").textContent = message;
+    document.getElementById("errorSection").style.display = "block";
+    document.getElementById("weatherSection").style.display = "none";
   }
 
   showToast(message, type = "info") {
@@ -697,16 +1023,16 @@ class WeatherVibeApp {
     toast.className = `toast ${type}`;
 
     const icons = {
-      success: "fas fa-check-circle text-green-400",
-      error: "fas fa-exclamation-triangle text-red-400",
-      info: "fas fa-info-circle text-blue-400",
+      success: "fas fa-check-circle",
+      error: "fas fa-exclamation-triangle",
+      info: "fas fa-info-circle",
     };
 
     toast.innerHTML = `
-            <div class="flex items-center space-x-3">
+            <div class="toast-icon">
                 <i class="${icons[type]}"></i>
-                <span>${message}</span>
             </div>
+            <div class="toast-message">${message}</div>
         `;
 
     document.getElementById("toastContainer").appendChild(toast);
@@ -715,16 +1041,16 @@ class WeatherVibeApp {
     setTimeout(() => {
       toast.classList.remove("show");
       setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    }, 4000);
   }
 }
 
-// Initialiser l'application
+// Initialize the application
 document.addEventListener("DOMContentLoaded", () => {
-  new WeatherVibeApp();
+  new WeatherApp();
 });
 
-// Gestion des erreurs globales
+// Global error handling
 window.addEventListener("error", (event) => {
   console.error("Global error:", event.error);
 });
