@@ -1,4 +1,0 @@
-# Fichiers à ignorer par git
-config.js
-.env
-node_modules/
