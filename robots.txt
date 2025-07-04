@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://weather-vip.vercel.app/sitemap.xml

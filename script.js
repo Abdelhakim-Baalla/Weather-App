@@ -1,6 +1,6 @@
 class WeatherApp {
   constructor() {
-    this.apiKey = typeof API_KEY !== "undefined" ? API_KEY : ""; // Utilise la clé API depuis config.js
+    this.apiKey = typeof API_KEY !== "undefined" ? API_KEY : "";
     this.baseUrl = "https://api.openweathermap.org/data/2.5";
     this.geoUrl = "https://api.openweathermap.org/geo/1.0";
     this.currentWeatherData = null;

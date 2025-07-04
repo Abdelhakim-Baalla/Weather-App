@@ -3,7 +3,51 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WeatherVibe Pro - Professional Weather App</title>
+    <title>Weather Vip - Météo Précise & Alertes</title>
+    <meta
+      name="description"
+      content="Weather Vip : prévisions météo précises, tendances, alertes et cartes interactives pour toutes les villes du monde. Application météo moderne, rapide et fiable !"
+    />
+    <meta
+      name="keywords"
+      content="météo, weather, prévisions, alertes, tendances, météo France, météo monde, Weather Vip, weather-vip.vercel.app, application météo, météo gratuite, météo en ligne, météo populaire, météo tendance, météo virale, météo mobile, météo Android, météo iOS, météo PWA, météo Paris, météo Londres, météo New York, météo Tokyo, météo Dubai, météo Sydney, météo gratuite, météo précise, météo instantanée, météo interactive, météo partagée, météo sociale, météo partage, météo réseaux sociaux, météo Google, météo Bing, météo Yahoo, météo Apple, météo App Store, météo Play Store, météo acquisition, météo viral, météo viralité, météo influenceur, météo partage Facebook, météo partage Twitter, météo partage WhatsApp, météo SEO, météo CEO, météo marketing, météo growth hacking, météo acquisition utilisateur, météo tendance 2025, météo IA, météo intelligence artificielle, météo insights, météo alertes, météo notifications, météo push, météo météo populaire, météo météo virale, météo météo tendance, météo météo gratuite, météo météo fiable, météo météo rapide, météo météo moderne, météo météo mobile, météo météo web, météo météo application, météo météo site, météo météo France, météo météo monde, météo météo Paris, météo météo Londres, météo météo New York, météo météo Tokyo, météo météo Dubai, météo météo Sydney, météo météo météo, weather app, best weather app, viral weather app, popular weather app, trending weather app, weather app 2025, weather ai, weather insights, weather alerts, weather notifications, weather push, weather social, weather share, weather Facebook, weather Twitter, weather WhatsApp, weather SEO, weather CEO, weather marketing, weather growth hacking, weather user acquisition, weather trend, weather viral, weather influencer, weather app store, weather play store, weather mobile, weather web, weather site, weather France, weather world, weather Paris, weather London, weather New York, weather Tokyo, weather Dubai, weather Sydney, weather weather, météo populaire 2025, météo virale 2025, météo tendance 2025, météo acquisition 2025, météo marketing 2025, météo SEO 2025, météo CEO 2025, météo growth hacking 2025, météo influenceur 2025, météo viralité 2025, météo réseaux sociaux 2025, météo partage 2025, météo notifications 2025, météo alertes 2025, météo insights 2025, météo IA 2025, météo intelligence artificielle 2025, météo météo météo 2025, weather app 2025, viral weather app 2025, popular weather app 2025, trending weather app 2025, weather ai 2025, weather insights 2025, weather alerts 2025, weather notifications 2025, weather push 2025, weather social 2025, weather share 2025, weather Facebook 2025, weather Twitter 2025, weather WhatsApp 2025, weather SEO 2025, weather CEO 2025, weather marketing 2025, weather growth hacking 2025, weather user acquisition 2025, weather trend 2025, weather viral 2025, weather influencer 2025, weather app store 2025, weather play store 2025, weather mobile 2025, weather web 2025, weather site 2025, weather France 2025, weather world 2025, weather Paris 2025, weather London 2025, weather New York 2025, weather Tokyo 2025, weather Dubai 2025, weather Sydney 2025, weather weather 2025"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Weather Vip" />
+    <meta name="application-name" content="Weather Vip" />
+    <meta name="msapplication-TileColor" content="#1e293b" />
+    <meta name="theme-color" content="#1e293b" />
+    <link rel="apple-touch-icon" href="favicon-192.png" />
+    <link rel="robots" href="robots.txt" />
+    <link rel="shortcut icon" href="images/sun.ico" type="image/x-icon" />
+    <link
+      rel="sitemap"
+      type="application/xml"
+      title="Sitemap"
+      href="sitemap.xml"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png" />
+    <meta property="og:title" content="Weather Vip - Météo Précise & Alertes" />
+    <meta
+      property="og:description"
+      content="Prévisions météo précises, tendances et alertes pour toutes les villes du monde. Application météo moderne, rapide et fiable !"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://weather-vip.vercel.app/" />
+    <meta property="og:site_name" content="Weather Vip" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Weather Vip - Météo Précise & Alertes"
+    />
+    <meta
+      name="twitter:description"
+      content="Prévisions météo précises, tendances et alertes pour toutes les villes du monde. Application météo moderne, rapide et fiable !"
+    />
+    <meta name="twitter:site" content="@weathervip" />
+    <meta name="twitter:creator" content="@weathervip" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
@@ -14,6 +58,19 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="styles.css" />
+    <!-- Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-CYX603BWPV"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-CYX603BWPV");
+    </script>
   </head>
   <body class="light-theme">
     <!-- Background Elements -->
@@ -25,16 +82,16 @@
     </div>
 
     <!-- Header -->
-    <header class="header">
+    <header class="header" aria-label="En-tête principal">
       <div class="container">
         <div class="header-content">
           <div class="logo-section">
             <div class="logo">
-              <i class="fas fa-cloud-sun"></i>
+              <i class="fas fa-cloud-sun" aria-hidden="true"></i>
             </div>
             <div class="logo-text">
-              <h1>WeatherVibe Pro</h1>
-              <span>Professional Weather Insights</span>
+              <h1>Weather Vip</h1>
+              <span>Prévisions météo précises & alertes</span>
             </div>
           </div>
 
@@ -43,25 +100,42 @@
               class="control-btn"
               id="notificationBtn"
               title="Notifications"
+              aria-label="Notifications"
             >
-              <i class="fas fa-bell"></i>
+              <i class="fas fa-bell" aria-hidden="true"></i>
               <span class="notification-badge" id="notificationBadge">3</span>
             </button>
-            <button class="control-btn" id="favoritesBtn" title="Favorites">
-              <i class="fas fa-heart"></i>
+            <button
+              class="control-btn"
+              id="favoritesBtn"
+              title="Favoris"
+              aria-label="Favoris"
+            >
+              <i class="fas fa-heart" aria-hidden="true"></i>
             </button>
-            <button class="control-btn" id="shareBtn" title="Share">
-              <i class="fas fa-share-alt"></i>
+            <button
+              class="control-btn"
+              id="shareBtn"
+              title="Partager"
+              aria-label="Partager"
+            >
+              <i class="fas fa-share-alt" aria-hidden="true"></i>
             </button>
             <button
               class="control-btn theme-toggle"
               id="themeToggle"
-              title="Toggle Theme"
+              title="Changer de thème"
+              aria-label="Changer de thème"
             >
-              <i class="fas fa-moon"></i>
+              <i class="fas fa-moon" aria-hidden="true"></i>
             </button>
-            <button class="control-btn" id="settingsBtn" title="Settings">
-              <i class="fas fa-cog"></i>
+            <button
+              class="control-btn"
+              id="settingsBtn"
+              title="Paramètres"
+              aria-label="Paramètres"
+            >
+              <i class="fas fa-cog" aria-hidden="true"></i>
             </button>
           </div>
         </div>
